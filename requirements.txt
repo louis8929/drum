@@ -4,9 +4,13 @@ sounddevice>=0.4.6   # sortie audio basse latence (PortAudio : WASAPI exclusif /
 soundfile>=0.12      # lecture/ecriture WAV (samples et rendu de demo)
 
 # --- Entree MIDI : AU MOINS UN des deux ---
-# python-rtmidi = latence minimale (callback), mais necessite un wheel precompile
-# ou un compilateur C++. Pas de wheel pour Python 3.13 au moment de l'ecriture.
+# pygame-ce = repli robuste (scrutation ~1 ms), fork communautaire de pygame avec
+# des wheels a jour, y compris Python 3.13 ET 3.14. C'est un drop-in : le code
+# fait toujours "import pygame.midi".
+#   NB : ne pas installer "pygame" et "pygame-ce" en meme temps (ils se recouvrent).
+pygame-ce>=2.5.5
+
+# python-rtmidi = latence MIDI minimale (callback) au lieu de la scrutation.
+# Optionnel : necessite un wheel precompile ou un compilateur C++, et n'a pas
+# encore de wheel pour Python 3.13/3.14. Utilisable sur Python 3.11/3.12.
 #   pip install python-rtmidi
-#
-# pygame = repli robuste (scrutation ~1 ms), wheels disponibles partout, y compris 3.13.
-pygame>=2.5

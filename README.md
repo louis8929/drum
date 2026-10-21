@@ -4,7 +4,7 @@ Reçoit les notes MIDI d'une batterie électronique (ex. **Alesis Nitro Max**) v
 et joue les sons de batterie correspondants sur le PC, avec une **latence la plus
 faible possible** (WASAPI exclusif / ASIO, samples préchargés en RAM).
 
-Testé sur **Windows 11, Python 3.13**, sortie audio intégrée (Realtek) :
+Testé sur **Windows 11, Python 3.13 et 3.14**, sortie audio intégrée (Realtek) :
 flux **WASAPI exclusif à ~4,7 ms de latence, 0 coupure**.
 
 ---
@@ -22,9 +22,10 @@ désactivé pendant le jeu) → pas de craquements. Résultat mesuré : **< 7 ms
 pour un cycle de développement bien plus court qu'en C++/Rust. Si un jour tu veux
 < 3 ms garantis, seul le moteur audio (`engine.py`) serait à porter.
 
-> **Entrée MIDI** : `python-rtmidi` (callback, latence minimale) est préféré mais n'a
-> pas de wheel précompilé pour Python 3.13. Le logiciel bascule alors automatiquement
-> sur `pygame.midi` (scrutation à ~1 ms, latence ajoutée négligeable).
+> **Entrée MIDI** : le logiciel utilise `pygame.midi` (via **`pygame-ce`**, qui a des
+> wheels à jour pour Python 3.13 **et 3.14**) — scrutation à ~1 ms, latence ajoutée
+> négligeable. Si `python-rtmidi` est installé (callback, latence encore plus basse),
+> il est détecté et utilisé en priorité ; mais il n'a pas de wheel pour 3.13/3.14.
 
 ---
 
@@ -208,7 +209,8 @@ Pour des sons plus réalistes, remplace par de vrais samples **libres de droits*
 | **« Error opening OutputStream » / périphérique occupé** | Le mode exclusif requiert un accès réservé ; ferme ce qui utilise la carte son, ou mets `wasapi_exclusive: false`. Le logiciel bascule aussi tout seul en mode partagé si l'exclusif échoue. |
 | **Charley ouverte qui ne se coupe pas** | Vérifie que 42/44/46 ont bien `"choke_group": "hihat"`. Si la pédale agit à l'envers, mets `invert_cc: true`. Vérifie le CC de ta pédale dans `learn` (il s'affiche). |
 | **Pas de son en simulation** | Vérifie la sortie audio (`--audio-device`) et le volume `--master`. |
-| **`python-rtmidi` ne s'installe pas** | Normal sans compilateur sur Python 3.13 : le logiciel utilise `pygame.midi` automatiquement. Pour rtmidi, utiliser Python 3.11/3.12 (wheels dispo) ou installer les *Build Tools for Visual Studio*. |
+| **`python-rtmidi` ne s'installe pas** | Normal sans compilateur sur Python 3.13/3.14 : le logiciel utilise `pygame.midi` (pygame-ce) automatiquement. Pour rtmidi, utiliser Python 3.11/3.12 (wheels dispo) ou installer les *Build Tools for Visual Studio*. |
+| **`pip install pygame` échoue sur Python 3.14** | Utilise **`pygame-ce`** (déjà dans `requirements.txt`) : `pygame` classique n'a pas encore de wheel 3.14, pygame-ce oui. N'installe pas les deux en même temps ; au besoin `pip uninstall pygame` puis `pip install pygame-ce`. |
 | **Note non reconnue** | Elle s'affiche `?? (non assigné)`. Utilise `learn` pour l'assigner, ou ajoute-la dans la config. |
 
 ---
