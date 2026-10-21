@@ -6,6 +6,7 @@ Chaque pad possede plusieurs couches de timbre selectionnees par la velocity.
 """
 from __future__ import annotations
 
+import json
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -70,6 +71,7 @@ def build_bank(cfg: dict, n_layers: int = 3, seed: int | None = None,
                verbose: bool = False) -> SampleBank:
     """Construit la banque depuis la config. Synthetise ou charge chaque son une seule fois."""
     samplerate = cfg["audio"]["samplerate"]
+    presets = cfg.get("synth_presets", {})
     bank = SampleBank()
     cache_instr: dict[str, list[np.ndarray]] = {}
     cache_file: dict[str, list[np.ndarray]] = {}
@@ -89,11 +91,17 @@ def build_bank(cfg: dict, n_layers: int = 3, seed: int | None = None,
             layers = cache_file[key]
         else:
             instr = pad["instrument"]
-            if instr not in cache_instr:
+            # Parametres de synthese : preset du kit pour cet instrument, surcharge
+            # par les reglages propres au pad ("synth": {...}).
+            params = dict(presets.get(instr, {}))
+            params.update(pad.get("synth", {}))
+            key = instr + "|" + json.dumps(params, sort_keys=True)
+            if key not in cache_instr:
                 if verbose:
-                    print(f"  [synth] {label:<24} ({instr})")
-                cache_instr[instr] = synth.synth_layers(instr, samplerate, n_layers, seed)
-            layers = cache_instr[instr]
+                    extra = f"  {params}" if params else ""
+                    print(f"  [synth] {label:<24} ({instr}){extra}")
+                cache_instr[key] = synth.synth_layers(instr, samplerate, n_layers, seed, params)
+            layers = cache_instr[key]
 
         bank.add(PadSound(note=note, label=label, choke_group=choke, layers=layers))
 

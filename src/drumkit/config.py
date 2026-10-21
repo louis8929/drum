@@ -18,11 +18,36 @@ _FALLBACK_AUDIO = {
 }
 
 
+def _deep_merge(base: dict, overlay: dict) -> dict:
+    """Fusionne 'overlay' sur 'base'. Les sous-dicts (pads, audio, ...) sont fusionnes."""
+    out = copy.deepcopy(base)
+    for k, v in overlay.items():
+        if isinstance(v, dict) and isinstance(out.get(k), dict):
+            out[k] = _deep_merge(out[k], v)
+        else:
+            out[k] = copy.deepcopy(v)
+    return out
+
+
 def load_config(path: str | Path | None = None) -> dict:
-    """Charge la config JSON. Si 'path' est None, charge le mapping par defaut."""
+    """
+    Charge la config JSON. Si 'path' est None, charge le mapping par defaut.
+    Si la config contient "extends": "autre.json", elle herite de ce fichier de
+    base (fusion profonde), ce qui permet de definir un kit en ne precisant que
+    les differences (ex: synth_presets).
+    """
     path = Path(path) if path else DEFAULT_CONFIG_PATH
     with open(path, "r", encoding="utf-8") as f:
         cfg = json.load(f)
+
+    # Heritage : "extends" pointe vers un fichier de base (chemin relatif a ce fichier).
+    if "extends" in cfg:
+        base_path = (path.parent / cfg["extends"]).resolve()
+        base = load_config(base_path)
+        for key in ("_source_path", "extends"):
+            base.pop(key, None)
+        cfg = _deep_merge(base, {k: v for k, v in cfg.items() if k != "extends"})
+
     _validate(cfg)
     # complete les champs audio manquants
     audio = dict(_FALLBACK_AUDIO)

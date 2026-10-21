@@ -159,7 +159,67 @@ Deux mécanismes, combinables :
 
 ---
 
-## 5. Architecture (modules)
+## 5. Changer le son (rock, metal, vrais samples)
+
+Trois façons, de la plus simple à la plus réaliste.
+
+### a) Kits prêts à l'emploi
+```bash
+python main.py --config config/rock.json  play     # son punchy
+python main.py --config config/metal.json play     # kick claquant, caisse tranchante
+```
+(fonctionne aussi avec `render` pour générer une démo : `python main.py --config config/metal.json render demo_metal.wav`)
+
+### b) Régler la synthèse toi-même (dans le JSON)
+Chaque pad synthétisé accepte des réglages via `synth`, et un kit peut régler un
+instrument pour tous ses pads via `synth_presets`. Paramètres (tous optionnels) :
+
+| Param | Effet | Défaut |
+|---|---|---|
+| `tune` | hauteur (× fréquence) | 1.0 |
+| `decay` | durée / traîne | 1.0 |
+| `bright` | brillance ajoutée (−1 … +1) | 0.0 |
+| `click` | attaque / claquant | 1.0 |
+| `body` | corps grave (kick, caisse, toms) | 1.0 |
+
+Un **kit** se définit en quelques lignes en héritant du mapping par défaut
+(`extends`) et en ne précisant que les différences :
+```jsonc
+{
+  "extends": "default_mapping.json",
+  "synth_presets": {
+    "kick":  { "decay": 0.45, "click": 2.8, "bright": 0.45, "body": 0.8 },  // kick "métal" claquant
+    "snare": { "tune": 1.18, "decay": 0.75, "bright": 0.55 }                // caisse aiguë, tranchante
+  }
+}
+```
+Pour régler **un seul pad** plutôt que tout l'instrument, mets `synth` directement
+dans le pad :
+```jsonc
+"38": { "instrument": "snare", "label": "Caisse claire", "synth": { "tune": 1.2, "bright": 0.6 } }
+```
+Repère mental : **metal** = `decay` court + `click` haut + `bright` haut (sec et agressif) ;
+**rock** = `decay` un peu plus long + `body` haut (gros et rond).
+
+### c) Vrais samples (le plus réaliste)
+La synthèse donne un kit « rock/metal » honnête, mais pour un vrai son produit,
+rien ne vaut des échantillons. Télécharge un kit **libre de droits (CC0)** — p. ex.
+sur [Freesound](https://freesound.org) (filtre licence *Creative Commons 0*) en
+cherchant « metal drum kit », « rock snare », « heavy kick » — pose les `.wav` dans
+`samples/` et pointe-les dans un pad avec `file` au lieu de `instrument` :
+```jsonc
+"36": { "file": "samples/metal_kick.wav",  "label": "Kick metal" },
+"38": { "file": "samples/metal_snare.wav", "label": "Snare metal" },
+"42": { "file": "samples/hihat_closed.wav","label": "HH fermée", "choke_group": "hihat" }
+```
+Les WAV sont chargés en RAM, convertis en stéréo et rééchantillonnés automatiquement.
+Tu peux mélanger synthèse et samples dans le même kit. Astuce : pars d'une copie de
+`config/default_mapping.json`, remplace pad par pad, et teste avec `render` au fur et
+à mesure.
+
+---
+
+## 6. Architecture (modules)
 
 ```
 main.py                     Point d'entrée + arguments (devices/play/learn/render)
@@ -185,7 +245,7 @@ voix et mixe. Aucun verrou, aucune allocation dans le callback.
 
 ---
 
-## 6. Sons : d'où viennent-ils ?
+## 7. Sons : d'où viennent-ils ?
 
 Par défaut, **100 % synthétisés** par `synth.py` (grosse caisse = sinus à hauteur
 descendante, caisse claire = corps tonal + bruit, charley/cymbales = bruit filtré +
@@ -199,7 +259,7 @@ Pour des sons plus réalistes, remplace par de vrais samples **libres de droits*
 
 ---
 
-## 7. Dépannage
+## 8. Dépannage
 
 | Problème | Piste |
 |---|---|
@@ -215,7 +275,7 @@ Pour des sons plus réalistes, remplace par de vrais samples **libres de droits*
 
 ---
 
-## 8. Plus tard (non implémenté)
+## 9. Plus tard (non implémenté)
 
 Kits de sons multiples, enregistrement MIDI, métronome, effets (reverb), mixage par pad,
 round-robin (variation de samples pour éviter l'effet « mitraillette »).
