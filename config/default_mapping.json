@@ -1,0 +1,45 @@
+{
+  "_comment": "Mapping General MIDI par defaut pour Alesis Nitro Max. 'instrument' = nom du son synthetise (ou fichier WAV si 'file' fourni). 'choke_group' coupe les sons du meme groupe (ex: charley).",
+
+  "audio": {
+    "samplerate": 48000,
+    "blocksize": 128,
+    "channels": 2,
+    "host_api_preference": ["ASIO", "Windows WASAPI"],
+    "wasapi_exclusive": true,
+    "max_voices": 64,
+    "master_gain": 0.9
+  },
+
+  "hihat": {
+    "pedal_cc": 4,
+    "closed_threshold": 60,
+    "choke_group": "hihat",
+    "_comment": "CC4 = position de la pedale charley (0 = ouvert, 127 = ferme). Au-dessus du seuil, une note de charley ouverte (46) est traitee comme fermee."
+  },
+
+  "pads": {
+    "35": { "instrument": "kick",          "label": "Grosse caisse (acoustic)" },
+    "36": { "instrument": "kick",          "label": "Grosse caisse" },
+    "37": { "instrument": "sidestick",     "label": "Cross-stick" },
+    "38": { "instrument": "snare",         "label": "Caisse claire" },
+    "39": { "instrument": "clap",          "label": "Clap" },
+    "40": { "instrument": "snare",         "label": "Caisse claire (electro)" },
+    "41": { "instrument": "tom_low",       "label": "Tom basse" },
+    "42": { "instrument": "hihat_closed",  "label": "Charley fermee",  "choke_group": "hihat" },
+    "43": { "instrument": "tom_low",       "label": "Tom basse (rim)" },
+    "44": { "instrument": "hihat_pedal",   "label": "Charley pedale",  "choke_group": "hihat" },
+    "45": { "instrument": "tom_mid",       "label": "Tom medium" },
+    "46": { "instrument": "hihat_open",    "label": "Charley ouverte", "choke_group": "hihat" },
+    "47": { "instrument": "tom_mid",       "label": "Tom medium (rim)" },
+    "48": { "instrument": "tom_high",      "label": "Tom aigu" },
+    "49": { "instrument": "crash",         "label": "Crash 1",         "choke_group": "crash1" },
+    "50": { "instrument": "tom_high",      "label": "Tom aigu (rim)" },
+    "51": { "instrument": "ride",          "label": "Ride (bow)",      "choke_group": "ride" },
+    "52": { "instrument": "crash",         "label": "China" },
+    "53": { "instrument": "ride_bell",     "label": "Ride (cloche)",   "choke_group": "ride" },
+    "55": { "instrument": "crash",         "label": "Splash",          "choke_group": "crash1" },
+    "57": { "instrument": "crash",         "label": "Crash 2",         "choke_group": "crash2" },
+    "59": { "instrument": "ride",          "label": "Ride (edge)",     "choke_group": "ride" }
+  }
+}

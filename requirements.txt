@@ -1,0 +1,12 @@
+# --- Coeur (obligatoire) ---
+numpy>=1.24          # mixage audio vectorise
+sounddevice>=0.4.6   # sortie audio basse latence (PortAudio : WASAPI exclusif / ASIO)
+soundfile>=0.12      # lecture/ecriture WAV (samples et rendu de demo)
+
+# --- Entree MIDI : AU MOINS UN des deux ---
+# python-rtmidi = latence minimale (callback), mais necessite un wheel precompile
+# ou un compilateur C++. Pas de wheel pour Python 3.13 au moment de l'ecriture.
+#   pip install python-rtmidi
+#
+# pygame = repli robuste (scrutation ~1 ms), wheels disponibles partout, y compris 3.13.
+pygame>=2.5
